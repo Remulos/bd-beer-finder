@@ -1,4 +1,6 @@
 import React from 'react';
+import Grid from '@material-ui/core/Grid';
+import GridList from '@material-ui/core/GridList';
 import BrewDog from '../api/BrewDog';
 import SearchBar from './SearchBar';
 import Results from './Results';
@@ -56,11 +58,13 @@ class App extends React.Component {
 			<div>
 				<h1>BD-Beer-Finder</h1>
 				<SearchBar onSubmit={this.handleSearchSubmit} />
-				<Results
-					beers={this.state.beers}
-					handleBeerSelect={this.handleBeerSelect}
-					selectedBeer={this.state.selectedBeer}
-				/>
+				<GridList cellHeight={'auto'} cols={12} spacing={12}>
+					<Results
+						beers={this.state.beers}
+						handleBeerSelect={this.handleBeerSelect}
+						selectedBeer={this.state.selectedBeer}
+					/>
+				</GridList>
 				<button type="button" onClick={this.handlePrevButton}>
 					Prev Page
 				</button>
