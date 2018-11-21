@@ -1,50 +1,73 @@
 import React from 'react';
-import Axios from 'axios';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Typography from '@material-ui/core/Typography';
+import BrewDog from '../api/BrewDog';
 import SearchBar from './SearchBar';
 import Results from './Results';
 
 class App extends React.Component {
-	state = { beers: [], selectedBeer: null };
+	state = { beers: [], selectedBeer: null, term: '', page: 1 };
 
 	handleSearchSubmit = async term => {
+		await this.setState({ page: 1 });
+		await this.setState({ term: term });
+		this.handleNewApiReq();
+	};
+
+	handleNewApiReq = async () => {
 		try {
-			console.log(term);
-			if (!term) {
-				const response = await Axios.get(
-					'https://api.punkapi.com/v2/beers'
-				);
+			if (!this.state.term) {
+				const response = await BrewDog.get(`?page=${this.state.page}`);
 				this.setState({ beers: response.data });
-				console.log(this.state.beers);
 			} else {
-				const response = await Axios.get(
-					`https://api.punkapi.com/v2/beers?beer_name=${term}`
+				const response = await BrewDog.get(
+					`?beer_name=${this.state.term}&page=${this.state.page}`
 				);
-				console.log(response);
 				this.setState({ beers: response.data });
-				console.log(this.state.beers);
 			}
 		} catch (err) {
 			console.log(err);
 		}
 	};
 
-	handleBeerSelect = beer => {
-		this.setState({ selectedBeer: beer });
+	handleBeerSelect = async beer => {
+		try {
+			await this.setState({ selectedBeer: beer });
+			console.log(this.state.selectedBeer);
+		} catch (err) {
+			console.log(err);
+		}
+	};
+
+	handlePrevButton = async () => {
+		await this.setState({
+			page: this.state.page <= 1 ? 1 : this.state.page - 1,
+		});
+		this.handleNewApiReq();
+	};
+
+	handleNextButton = async () => {
+		await this.setState({
+			page: this.state.page >= 11 ? 11 : this.state.page + 1,
+		});
+		this.handleNewApiReq();
 	};
 
 	render() {
 		return (
-			<React.Fragment>
-				<CssBaseline />
-				<Typography variant="h1">BD-beer-finder</Typography>
+			<div>
+				<h1>BD-Beer-Finder</h1>
 				<SearchBar onSubmit={this.handleSearchSubmit} />
 				<Results
 					beers={this.state.beers}
 					handleBeerSelect={this.handleBeerSelect}
+					selectedBeer={this.state.selectedBeer}
 				/>
-			</React.Fragment>
+				<button type="button" onClick={this.handlePrevButton}>
+					Prev Page
+				</button>
+				<button type="button" onClick={this.handleNextButton}>
+					Next Page
+				</button>
+			</div>
 		);
 	}
 }
